@@ -1,3 +1,5 @@
+# Snakecoin Blockchain
+
 ## Installation
     sudo python -m pip install flask # Install web server framework
     sudo python -m pip install requests
