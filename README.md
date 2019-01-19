@@ -1,4 +1,34 @@
-## In terminal
+## Installation
+    sudo python -m pip install flask # Install web server framework
+    sudo python -m pip install requests
+
+## Serve
+    python serve.py
+
+## Operations
+1. Create a transaction
+
+
+    curl "localhost:5000/txion" \
+         -H "Content-Type: application/json" \
+         -d '{"from": "akjflw", "to":"fjlakdj", "amount": 3}'
+
+2. Mine a new block.
+
+
+    curl localhost:5000/mine
+
+### Sample of output
+
+```
+$ curl "localhost:5000/txion" -H "Content-Type: application/json"          -d '{"from": "akjflw", "to":"fjlakdj", "amount": 3}'
+Transaction submission successful
+
+$ curl localhost:5000/mine
+{"index": 1, "data": {"transactions": [{"to": "fjlakdj", "amount": 3, "from": "akjflw"}, {"to": "q3nf394hjg-random-miner-address-34nf3i4nflkn3oi", "amount": 1, "from": "network"}], "proof-of-work": 18}, "hash": "177aabf4e05e33746f8b74ed78a8f9e46f0bd130acd6a3f6a150bd4fbd3e2ac9", "timestamp": "2019-01-19 15:02:29.453647"}
+```
+
+## Test running blockchain in terminal
     python blockchain.py
 
 ### Sample of output
@@ -63,6 +93,11 @@ Hash: 7408e8ef0b81bbdaea1f77dfd6ba49b82aabc82a464d0d2df7272ca30799391c
 Block #20 has been added to the blockchain!
 Hash: a0cac6463ed75e2fc07d46da3d54c9161b3cce609ec8c3ec8371387bfdf0c956
 ```
+
+## Some commands that might be useful in MacOS
+    xcode-select --install
+    sudo easy_install pip
+    brew install python
 
 ## Reference
 * Let’s Build the Tiniest Blockchain, https://medium.com/crypto-currently/lets-build-the-tiniest-blockchain-e70965a248b
