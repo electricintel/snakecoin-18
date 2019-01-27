@@ -260,4 +260,21 @@ def history():
         "message": "Invalid query"
     })
 
+def address_list():
+    last_block = blockchain[len(blockchain) - 1]
+    data = last_block.data
+    transactions = data['transactions']
+    addresses = []
+    if transactions:
+        for e in transactions:
+            if not e['to'] in addresses:
+                addresses.append(e['to'])
+            if not e['from'] in addresses:
+                addresses.append(e['from'])
+    return addresses
+
+@node.route('/addresses',methods=['GET'])
+def addresses():
+    return json.dumps(address_list())
+
 node.run()
