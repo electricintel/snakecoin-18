@@ -40,24 +40,15 @@ blockchain = []
 
 fnames = ("blockchain.npy", "this_nodes_transactions.npy", "peer_nodes.npy")
 
-if os.path.isfile(fnames[0]):
-  blockchain = np.load(fnames[0]).tolist()
-else:
-  blockchain.append(create_genesis_block())
-
 # Store the transactions that
 # this node has in a list
 this_nodes_transactions = []
-if os.path.isfile(fnames[1]):
-  this_nodes_transactions = np.load(fnames[1]).tolist()
 
 # Store the url data of every
 # other node in the network
 # so that we can communicate
 # with them
 peer_nodes = []
-if os.path.isfile(fnames[2]):
-  peer_nodes = np.load(fnames[2]).tolist()
 
 # A variable to deciding if we're mining or not
 mining = True
@@ -156,7 +147,7 @@ def mine():
   # we know we can mine a block so
   # we reward the miner by adding a transaction
   this_nodes_transactions.append(
-    { "from": "network", "to": miner_address, "amount": 1 }
+    { "from": "network", "to": miner_address, "amount": 1000000000000 }
   )
   # Now we can gather the data needed
   # to create the new block
@@ -276,5 +267,17 @@ def address_list():
 @node.route('/addresses',methods=['GET'])
 def addresses():
     return json.dumps(address_list())
+
+if os.path.isfile(fnames[2]):
+  peer_nodes = np.load(fnames[2]).tolist()
+
+if os.path.isfile(fnames[1]):
+  this_nodes_transactions = np.load(fnames[1]).tolist()
+
+if os.path.isfile(fnames[0]):
+  blockchain = np.load(fnames[0]).tolist()
+else:
+  blockchain.append(create_genesis_block())
+  mine()
 
 node.run()
