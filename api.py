@@ -200,4 +200,64 @@ def ledger():
       "hash": last_block.hash
   }) + "\n"
 
+def balance_of(name):
+    balance = 0
+    if name:
+        last_block = blockchain[len(blockchain) - 1]
+        data = last_block.data
+        transactions = data['transactions']
+        if transactions:
+            for e in transactions:
+                if e['to']==name:
+                    balance += e['amount']
+                elif e['from']==name:
+                    balance -= e['amount']
+    return balance
+
+@node.route('/balance',methods=['GET'])
+def balance():
+    name = str(request.query_string).encode('utf-8')
+    if name:
+        balance = balance_of(name)
+        last_block = blockchain[len(blockchain) - 1]
+        return json.dumps({
+            "name": name,
+            "timestamp": str(last_block.timestamp),
+            "balance": balance
+        })
+    return json.dumps({
+        "error": True,
+        "message": "Invalid query"
+    })
+
+def history_of(name):
+    if name:
+        last_block = blockchain[len(blockchain) - 1]
+        data = last_block.data
+        transactions = data['transactions']
+        history = []
+        if transactions:
+            for e in transactions:
+                if e['to']==name or e['from']==name:
+                    history.append(e)
+        return history
+    return []
+
+@node.route('/history',methods=['GET'])
+def history():
+    name = str(request.query_string).encode('utf-8')
+    balance = 0
+    if name:
+        history = history_of(name)
+        last_block = blockchain[len(blockchain) - 1]
+        return json.dumps({
+            "name": name,
+            "timestamp": str(last_block.timestamp),
+            "history": history
+        })
+    return json.dumps({
+        "error": True,
+        "message": "Invalid query"
+    })
+
 node.run()
