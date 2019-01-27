@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask_cors import CORS, cross_origin
 
 import numpy as np
 import os.path
@@ -8,7 +9,10 @@ import json
 import requests
 import hashlib as hasher
 import datetime as date
+
 node = Flask(__name__)
+cors = CORS(node)
+node.config['CORS_HEADERS'] = 'Content-Type'
 
 # Define what a Snakecoin block is
 class Block:
@@ -54,6 +58,7 @@ peer_nodes = []
 mining = True
 
 @node.route('/txion', methods=['POST'])
+@cross_origin()
 def transaction():
   # On each new POST request,
   # we extract the transaction data
@@ -72,6 +77,7 @@ def transaction():
   return "Transaction submission successful\n"
 
 @node.route('/blocks', methods=['GET'])
+@cross_origin()
 def get_blocks():
   chain_to_send = blockchain
   # Convert our blocks into dictionaries
@@ -134,6 +140,7 @@ def proof_of_work(last_proof):
   return incrementor
 
 @node.route('/mine', methods = ['GET'])
+@cross_origin()
 def mine():
   # Get the last proof of work
   last_block = blockchain[len(blockchain) - 1]
@@ -181,6 +188,7 @@ def mine():
   }) + "\n"
 
 @node.route('/ledger', methods = ['GET'])
+@cross_origin()
 def ledger():
   # Get the last proof of work
   last_block = blockchain[len(blockchain) - 1]
@@ -206,6 +214,7 @@ def balance_of(name):
     return balance
 
 @node.route('/balance',methods=['GET'])
+@cross_origin()
 def balance():
     name = str(request.query_string).encode('utf-8')
     if name:
@@ -235,6 +244,7 @@ def history_of(name):
     return []
 
 @node.route('/history',methods=['GET'])
+@cross_origin()
 def history():
     name = str(request.query_string).encode('utf-8')
     balance = 0
@@ -270,10 +280,12 @@ def is_valid(address):
     return False
 
 @node.route('/addresses',methods=['GET'])
+@cross_origin()
 def addresses():
     return json.dumps(address_list())
 
 @node.route('/transfer',methods=['POST'])
+@cross_origin()
 def transfer():
     data = request.get_json()
     from_address = data['from']
@@ -316,25 +328,29 @@ def transfer():
         else:
             return json.dumps({
                 "status": False,
-                "timestamp": date.datetime.now(),
+                "timestamp": str(date.datetime.now()),
                 "message": "Insufficient balance"
             })
     else:
         return json.dumps({
             "status": False,
-            "timestamp": date.datetime.now(),
+            "timestamp": str(date.datetime.now()),
             "message": "Invalid from address. Address {} not found!".format(from_address)
         })
     return json.dumps({
         "status": False,
-        "timestamp": date.datetime.now(),
+        "timestamp": str(date.datetime.now()),
         "message": "Unknown error"
     })
 
 sign_up_bonus = 20
 
+@node.route('/register',methods=['POST'])
+@cross_origin()
 def register():
-    name = str(request.query_string).encode('utf-8')
+    data = request.get_json()
+    print(data)
+    name = data['username']
     if name:
         if not is_valid(name):
             balance = balance_of(miner_address)
@@ -369,28 +385,28 @@ def register():
                     "status": True,
                     "timestamp": str(new_block_timestamp),
                     "message": "Successfully registering {}".format(name)
-                }) + "\n"
+                })
             else:
                 return json.dumps({
                     "status": False,
-                    "timestamp": date.datetime.now(),
+                    "timestamp": str(date.datetime.now()),
                     "message": "All coins has been subscribed fully"
                 })
         else:
             return json.dumps({
                 "status": False,
-                "timestamp": date.datetime.now(),
+                "timestamp": str(date.datetime.now()),
                 "message": "Name {} is already exist".format(name)
             })
     else:
         return json.dumps({
             "status": False,
-            "timestamp": date.datetime.now(),
+            "timestamp": str(date.datetime.now()),
             "message": "Invalid name {}".format(name)
         })
     return json.dumps({
         "status": False,
-        "timestamp": date.datetime.now(),
+        "timestamp": str(date.datetime.now()),
         "message": "Unknown error"
     })
 

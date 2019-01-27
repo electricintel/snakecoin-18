@@ -3,6 +3,7 @@
 ## Installation
     sudo python -m pip install flask # Install web server framework
     sudo python -m pip install requests
+    sudo python -m pip install -U flask-cors
 
 ## Serve
     python api.py
