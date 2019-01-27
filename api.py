@@ -264,9 +264,136 @@ def address_list():
                 addresses.append(e['from'])
     return addresses
 
+def is_valid(address):
+    if address:
+        return address in address_list()
+    return False
+
 @node.route('/addresses',methods=['GET'])
 def addresses():
     return json.dumps(address_list())
+
+@node.route('/transfer',methods=['POST'])
+def transfer():
+    data = request.get_json()
+    from_address = data['from']
+    to_address = data['to']
+    amount = data['amount']
+    if is_valid(from_address):
+        balance = balance_of(from_address)
+        if balance>=amount:
+            last_block = blockchain[len(blockchain) - 1]
+            last_proof = last_block.data['proof-of-work']
+            proof = proof_of_work(last_proof)
+            this_nodes_transactions.append(
+              { "from": from_address, "to": to_address, "amount": amount }
+            )
+            new_block_data = {
+              "proof-of-work": proof,
+              "transactions": list(this_nodes_transactions)
+            }
+            new_block_index = last_block.index + 1
+            new_block_timestamp = this_timestamp = date.datetime.now()
+            last_block_hash = last_block.hash
+            # Empty transaction list
+            #this_nodes_transactions[:] = []
+            new_block = Block(
+              new_block_index,
+              new_block_timestamp,
+              new_block_data,
+              last_block_hash
+            )
+            blockchain.append(new_block)
+            ## Save
+            np.save("blockchain.npy", blockchain)
+            np.save("this_nodes_transactions.npy", this_nodes_transactions)
+            # Let the client know we mined a block
+            return json.dumps({
+                "status": True,
+                "timestamp": str(new_block_timestamp),
+                "message": "Successfully transfer from {} to {} with amount of {}".format(from_address,to_address,amount)
+            }) + "\n"
+        else:
+            return json.dumps({
+                "status": False,
+                "timestamp": date.datetime.now(),
+                "message": "Insufficient balance"
+            })
+    else:
+        return json.dumps({
+            "status": False,
+            "timestamp": date.datetime.now(),
+            "message": "Invalid from address. Address {} not found!".format(from_address)
+        })
+    return json.dumps({
+        "status": False,
+        "timestamp": date.datetime.now(),
+        "message": "Unknown error"
+    })
+
+sign_up_bonus = 20
+
+def register():
+    name = str(request.query_string).encode('utf-8')
+    if name:
+        if not is_valid(name):
+            balance = balance_of(miner_address)
+            if balance>=sign_up_bonus:
+                last_block = blockchain[len(blockchain) - 1]
+                last_proof = last_block.data['proof-of-work']
+                proof = proof_of_work(last_proof)
+                this_nodes_transactions.append(
+                  { "from": miner_address, "to": name, "amount": sign_up_bonus }
+                )
+                new_block_data = {
+                  "proof-of-work": proof,
+                  "transactions": list(this_nodes_transactions)
+                }
+                new_block_index = last_block.index + 1
+                new_block_timestamp = this_timestamp = date.datetime.now()
+                last_block_hash = last_block.hash
+                # Empty transaction list
+                #this_nodes_transactions[:] = []
+                new_block = Block(
+                  new_block_index,
+                  new_block_timestamp,
+                  new_block_data,
+                  last_block_hash
+                )
+                blockchain.append(new_block)
+                ## Save
+                np.save("blockchain.npy", blockchain)
+                np.save("this_nodes_transactions.npy", this_nodes_transactions)
+                # Let the client know we mined a block
+                return json.dumps({
+                    "status": True,
+                    "timestamp": str(new_block_timestamp),
+                    "message": "Successfully registering {}".format(name)
+                }) + "\n"
+            else:
+                return json.dumps({
+                    "status": False,
+                    "timestamp": date.datetime.now(),
+                    "message": "All coins has been subscribed fully"
+                })
+        else:
+            return json.dumps({
+                "status": False,
+                "timestamp": date.datetime.now(),
+                "message": "Name {} is already exist".format(name)
+            })
+    else:
+        return json.dumps({
+            "status": False,
+            "timestamp": date.datetime.now(),
+            "message": "Invalid name {}".format(name)
+        })
+    return json.dumps({
+        "status": False,
+        "timestamp": date.datetime.now(),
+        "message": "Unknown error"
+    })
+
 
 if os.path.isfile(fnames[2]):
   peer_nodes = np.load(fnames[2]).tolist()
