@@ -5,7 +5,7 @@
     sudo python -m pip install requests
 
 ## Serve
-    python serve.py
+    python api.py
 
 ## Operations
 1. Create a transaction
@@ -27,7 +27,24 @@ $ curl "localhost:5000/txion" -H "Content-Type: application/json"          -d '{
 Transaction submission successful
 
 $ curl localhost:5000/mine
-{"index": 1, "data": {"transactions": [{"to": "fjlakdj", "amount": 3, "from": "akjflw"}, {"to": "q3nf394hjg-random-miner-address-34nf3i4nflkn3oi", "amount": 1, "from": "network"}], "proof-of-work": 18}, "hash": "177aabf4e05e33746f8b74ed78a8f9e46f0bd130acd6a3f6a150bd4fbd3e2ac9", "timestamp": "2019-01-19 15:02:29.453647"}
+{
+  "index": 1,
+  "data": {
+    "transactions": [
+      {
+        "to": "fjlakdj",
+        "amount": 3,
+        "from": "akjflw"
+      }, {
+        "to": "q3nf394hjg-random-miner-address-34nf3i4nflkn3oi", "amount": 1,
+        "from": "network"
+      }
+    ],
+    "proof-of-work": 18
+  },
+  "hash": "177aabf4e05e33746f8b74ed78a8f9e46f0bd130acd6a3f6a150bd4fbd3e2ac9",
+  "timestamp": "2019-01-19 15:02:29.453647"
+}
 ```
 
 ## Test running blockchain in terminal
