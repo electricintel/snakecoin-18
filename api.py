@@ -345,11 +345,27 @@ def transfer():
 
 sign_up_bonus = 20
 
+@node.route('/login',methods=['POST'])
+@cross_origin()
+def login():
+    data = request.get_json()
+    name = data['username']
+    if is_valid(name):
+        return json.dumps({
+            "status": True,
+            "timestamp": str(date.datetime.now()),
+            "message": "Login successful"
+        })
+    return json.dumps({
+        "status": False,
+        "timestamp": str(date.datetime.now()),
+        "message": "Fail to login"
+    })
+
 @node.route('/register',methods=['POST'])
 @cross_origin()
 def register():
     data = request.get_json()
-    print(data)
     name = data['username']
     if name:
         if not is_valid(name):
