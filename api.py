@@ -139,6 +139,30 @@ def proof_of_work(last_proof):
   # of our work
   return incrementor
 
+def init():
+  last_block = blockchain[len(blockchain) - 1]
+  last_proof = last_block.data['proof-of-work']
+  proof = proof_of_work(last_proof)
+  this_nodes_transactions.append(
+    { "from": "network", "to": miner_address, "amount": 1000000000000 }
+  )
+  new_block_data = {
+    "proof-of-work": proof,
+    "transactions": list(this_nodes_transactions)
+  }
+  new_block_index = last_block.index + 1
+  new_block_timestamp = this_timestamp = date.datetime.now()
+  last_block_hash = last_block.hash
+  mined_block = Block(
+    new_block_index,
+    new_block_timestamp,
+    new_block_data,
+    last_block_hash
+  )
+  blockchain.append(mined_block)
+  np.save("blockchain.npy", blockchain)
+  np.save("this_nodes_transactions.npy", this_nodes_transactions)
+
 @node.route('/mine', methods = ['GET'])
 @cross_origin()
 def mine():
@@ -438,6 +462,6 @@ if os.path.isfile(fnames[0]):
 else:
   blockchain.append(create_genesis_block())
   with node.app_context():
-      mine()
+      init()
 
 node.run()
