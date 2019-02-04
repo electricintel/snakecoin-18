@@ -464,4 +464,4 @@ else:
   with node.app_context():
       init()
 
-node.run()
+node.run(host='0.0.0.0')
