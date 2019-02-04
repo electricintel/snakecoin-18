@@ -437,6 +437,7 @@ if os.path.isfile(fnames[0]):
   blockchain = np.load(fnames[0]).tolist()
 else:
   blockchain.append(create_genesis_block())
-  mine()
+  with node.app_context():
+      mine()
 
 node.run()
